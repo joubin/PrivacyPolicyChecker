@@ -3,26 +3,32 @@
 # will produce a file called amazon%20privacy%20policy
 # if such file exists, it will create the above with a .tmp extention
 # this code does not check
-
-import _mysql
+import datetime
+#import _mysql
 import urllib
+import md5
 #import urllib2
 import sys
 import requests
 from readability.readability import Document
 import os.path
+import datetime
+import os
+######################################################################################
+######################################################################################
+######################################################################################
 
+today = datetime.date.today()
+print today
 # the commandline input
-list = sys.argv 
+myInput = sys.argv[1] 
 
-#check array size
-size = len(list)
 
 # Google the input and use the first likes location
 # This is the first result google gets 
 google1 = 'http://www.google.com/search?hl=en&q='
-google2 = '&btnI=1'
-keyword = '%20'.join(list[1:size])
+google2 = '%20privacy%20policy&btnI=1'
+keyword = myInput
 
 # Reconstruct the URL
 url = google1 + keyword + google2
@@ -34,25 +40,32 @@ url = r.headers['location']
 print url
 
 #Store the location of the file
-fileExist =  os.path.isfile(keyword)
+myFullPath = "/home/joubin/sandbox/db/" + keyword
+filename = keyword + "." + str(today)
+filetowrite = myFullPath + "/" + filename
+fileExist =  os.path.isfile(filetowrite)
+
+
+if not os.path.exists(myFullPath): os.makedirs(myFullPath)
 
 # Create a human readable document. Strips out most but NOT all of the html tags
 
 html = urllib.urlopen(url).read()
 readable_article = Document(html).summary()
-
-
+tempFileMade = False
+originalFileMade = False
 if(fileExist):
 	print "its there, ill make a temp"
-	filename = keyword + ".tmp"
-	f = open(filename, 'w')
+	filename = filename + ".tmp."
+	f = open(filetowrite, 'w')
 	writeThis = str(readable_article)
 	f.write(writeThis)
 	f.close
+	tempFileMade = True
 else:
 	print "no, its not there, ill go ahead and make it"
-	filename = keyword
-        f = open(filename, 'w')
-        writeThis = str(readable_article)
-        f.write(writeThis)
-        f.close
+	f = open(filetowrite, 'w')
+	writeThis = str(readable_article)
+	f.write(writeThis)
+	f.close
+	originalFileMade = True
