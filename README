@@ -8,9 +8,9 @@ Note: As the program grows, the above script may be renamed.
 #############
 Installation
 #############
-There setup.sh file that will auto install the needed python imports.
+There is a setup.sh file that will auto install the needed python imports and other dependencies.
 
-Use at risk. 
+Use at your own risk. 
 
 
 Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
