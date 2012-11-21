@@ -27,4 +27,8 @@ easy_install BeautifulSoup
 easy_install html2text
 easy_install stripogram
 easy_install beautifulsoup4
+easy_install requests
+
 rm -rf $pwd/temp
+
+#Updated November 7, 2012

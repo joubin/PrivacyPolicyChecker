@@ -40,13 +40,20 @@ url = r.headers['location']
 print url
 
 #Store the location of the file
-myFullPath = "/home/joubin/sandbox/db/" + keyword
+myFullPath = "./sandbox/db/" + keyword
+## ./sandbox/db/amazon/amazon.ddate
+## ./sandbox/db/amazon/amazon.ddate.tmp
+
+
 filename = keyword + "." + str(today)
 filetowrite = myFullPath + "/" + filename
+
 fileExist =  os.path.isfile(filetowrite)
+print "filetowrite is %s" % filetowrite
 
 
-if not os.path.exists(myFullPath): os.makedirs(myFullPath)
+
+#if not os.path.exists(myFullPath): os.makedirs(myFullPath)
 
 # Create a human readable document. Strips out most but NOT all of the html tags
 
@@ -56,7 +63,7 @@ tempFileMade = False
 originalFileMade = False
 if(fileExist):
 	print "its there, ill make a temp"
-	filename = filename + ".tmp."
+	filetowrite = filetowrite + ".tmp."
 	f = open(filetowrite, 'w')
 	writeThis = str(readable_article)
 	f.write(writeThis)
@@ -69,3 +76,4 @@ else:
 	f.write(writeThis)
 	f.close
 	originalFileMade = True
+
