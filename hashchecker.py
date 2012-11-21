@@ -61,9 +61,10 @@ class database(object):
         print ("name: {} hash: {}".
           format(name, sitehash))
         if sitehash == checkerFunction(name):
-          print "there was a match"
+          print "This site's privacy policy hash is up to date"
         else:
-          print "there was a change"
+	  commandText = ('''UPDATE sites set hash=''' + sitehash + '''WHERE name=''' + name)
+	  self.cursor.execute(commandText)
 
 
     except db.Error as e:
