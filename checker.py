@@ -1,3 +1,4 @@
+
 # The following code simply takes an input and downloads the privacy policy
 # Usage: python checker.py amazon privacy policy
 # will produce a file called amazon%20privacy%20policy
