@@ -15,7 +15,6 @@ class database(object):
   _cursor      = None
   _instance    = None
 
-  sitehashes   = None
   def __init__(self):
     try:
       if database._instance == None:
@@ -48,6 +47,8 @@ class database(object):
   get all site hashes from db
   """
   def getSiteHashes(self):
+
+    sitehashes   = dict()
     if self._connection is None:
       print "You must establish a connection first!"
       return
@@ -58,13 +59,29 @@ class database(object):
 
       self._cursor.execute(commandText)
       for (name, sitehash) in self._cursor:
+	sitehashes[name] = sitehash
+      self._cursor.close()
+      self._connection.close()
+
+      for name in sitehashes:
+	self._connect()
         print ("name: {} hash: {}".
-          format(name, sitehash))
-        if sitehash == checkerFunction(name):
+          format(name, sitehashes[name]))
+
+	newhash = checkerFunction(name)
+        if sitehashes[name] == newhash:
           print "This site's privacy policy hash is up to date"
         else:
-	  commandText = ('''UPDATE sites set hash=''' + sitehash + '''WHERE name=''' + name)
-	  self.cursor.execute(commandText)
+          sitehashes[name] = newhash
+	  commandText = ("UPDATE sites SET hash='{}' WHERE name='{}';".format(sitehashes[name], name))
+	  print commandText
+	  self._cursor.execute(commandText)
+	  self._connection.commit()
+	  self._cursor.close()
+	  self._connection.close()
+
+
+
 
 
     except db.Error as e:

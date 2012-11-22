@@ -49,10 +49,16 @@ def checkerFunction(myInput):
 	myFullPath = "./sandbox/db/" + keyword
 	## ./sandbox/db/amazon/amazon.ddate
 	## ./sandbox/db/amazon/amazon.ddate.tmp
-	"""
-	if not os.path.exists(myFullPath)
-    	os.makedirs(myFullPath)
-    """	
+
+	if not os.path.exists("./sandbox"):
+    	  os.makedirs("./sandbox")
+
+	if not os.path.exists("./sandbox/db/"):
+      	  os.makedirs("./sandbox/db/")
+
+	if not os.path.exists(myFullPath):
+    	  os.makedirs(myFullPath)
+
 	filename = keyword + "." + str(today)
 	filetowrite = myFullPath + "/" + filename
 	
