@@ -1,7 +1,4 @@
 import threading
-import time
-from array import *
-#import database adapter
 from dbcalls import dbCalls
 from checker import checkerFunction
 
@@ -15,18 +12,16 @@ class threadedCheck(threading.Thread):
     self.oldhash      = oldhash
     threading.Thread.__init__(self)
     
-    
   """override thread run function"""
   def run(self):
-    #print ("starting threadid: %s") % self.threadID
     newhash = checkerFunction(self.companyName)
-    #print("Thread: %s old hash: %s new hash: %s") % (self.threadID, self.oldhash, newhash)
     if (self.oldhash != newhash):
       data = {"hash": newhash, "companyName": self.companyName}
-      self.threadLock.acquire()
-      self.db.updateSiteHash(data)
-      self.threadLock.release()
-    
+      #db object is shared by other threads.
+      #put a lock on this object until its done executing
+      with self.threadLock:
+        self.db.updateSiteHash(data)
+        
 
 if __name__ == '__main__':
   threadLock = threading.Lock()

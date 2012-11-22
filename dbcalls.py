@@ -53,6 +53,69 @@ class dbCalls(Basesql):
       return
 
   """
+  get users that need to be notified
+  """
+  def getUsersToNotify(self):
+    if self._connection == None:
+      print "You must establish a connection first!"
+      return
+    cursor = self._connection.cursor()
+    result = []
+    commandText = ("""SELECT u.firstname, u.lastname, u.email, x.companies
+                        FROM (
+                              SELECT uxs.userid, 
+                                     group_concat(s.name ORDER BY s.name DESC SEPARATOR ', ') as companies
+                                FROM usersxsites uxs
+                              INNER JOIN sites s ON s.siteid = uxs.siteid
+                               WHERE s.isnew = 1
+                              GROUP BY uxs.userid
+                            ) AS x
+                      INNER JOIN users u ON u.userid = x.userid""")
+    resetFlagCommand = ("""UPDATE sites SET isnew = 0 WHERE isnew = 1""")                
+    try:
+      cursor.execute(commandText)
+      columns = tuple( [d[0].decode('utf8') for d in cursor.description] )
+      for row in cursor:
+        result.append(dict(zip(columns, row)))
+      cursor.execute(resetFlagCommand)
+      self._connection.commit()
+      cursor.close()
+      return result
+
+    except Exception as e:
+      print "%s" % e
+      return
+
+  """
+  get all companies for a given user
+  """
+  def getUserSites(self, userEmail):
+    if self._connection == None:
+      print "You must establish a connection first!"
+      return
+    cursor = self._connection.cursor()
+    result = []
+    
+    commandText = ("""SELECT s.name
+                        FROM sites s
+                      INNER JOIN usersxsites uxs ON uxs.siteid = s.siteid
+                      INNER JOIN users u ON u.userid = uxs.userid
+                      WHERE u.email = '%s'""" % userEmail)
+             
+    try:
+      cursor.execute(commandText)
+      columns = tuple( [d[0].decode('utf8') for d in cursor.description] )
+      for row in cursor:
+        result.append(dict(zip(columns, row)))
+      cursor.close()
+      return result
+
+    except Exception as e:
+      print "%s" % e
+      return
+  
+  
+  """
   get site hash from db
   """
   def getSitesHashes(self):
@@ -98,45 +161,11 @@ class dbCalls(Basesql):
     except Exception as e:
       print "%s" % e
     return
-  
-  """
-  get users that need to be notified
-  """
-  def getUsersToNotify(self):
-    if self._connection == None:
-      print "You must establish a connection first!"
-      return
-    cursor = self._connection.cursor()
-    result = []
-    commandText = ("""SELECT u.firstname, u.lastname, u.email, x.companies
-                        FROM (
-                              SELECT uxs.userid, 
-                                     group_concat(s.name ORDER BY s.name DESC SEPARATOR ', ') as companies
-                                FROM usersxsites uxs
-                              INNER JOIN sites s ON s.siteid = uxs.siteid
-                               WHERE s.isnew = 1
-                              GROUP BY uxs.userid
-                            ) AS x
-                      INNER JOIN users u ON u.userid = x.userid""")
-    resetFlagCommand = ("""UPDATE sites SET isnew = 0 WHERE isnew = 1""")                
-    try:
-      cursor.execute(commandText)
-      columns = tuple( [d[0].decode('utf8') for d in cursor.description] )
-      for row in cursor:
-        result.append(dict(zip(columns, row)))
-      cursor.execute(resetFlagCommand)
-      self._connection.commit()
-      cursor.close()
-      return result
-      
-    except Exception as e:
-      print "%s" % e
-      return
+
   
 if __name__ == '__main__':
   dbInstance = dbCalls()
-  stuff = dbInstance.getSitesHashes()
-  pprint.pprint(stuff)
+  pprint.pprint(dbInstance.getUserSites('alex@test'))
   """
   print("New userid: %s") % dbInstance.addUser('alex','c','alex@c')
   data = {"hash": 'blablabla', "companyName": 'amazon'}
