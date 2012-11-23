@@ -1,31 +1,62 @@
 import sys
 import os
-import threading
 import pprint
+import threading
+from Queue import Queue
 from dbcalls import dbCalls
-from threadedchecks import threadedCheck as check
+from checker import checkerFunction
 
-maxThreads = 10
+"""
+compare company old (db) hash to a new one (internet)
+update sites if necessary
+this class designed to run as a single daemon thread
+"""
+class threadedCheck(threading.Thread):
+  """override constructor"""
+  def __init__(self, threadLock, db, threadID, queue):
+    self.threadID     = threadID
+    self.db           = db
+    self.threadLock   = threadLock
+    self.queue        = queue
+    threading.Thread.__init__(self)
+    
+  """override thread run function"""
+  def run(self):
+    while True:
+      site = self.queue.get()
+      if (site != None):
+        newhash = checkerFunction(site['name'])
+        if (site['hash'] != newhash):
+          data = {"hash": newhash, "companyName": self.companyName}
+          #db object is shared by other threads.
+          #put a lock on this object until its done executing
+          with self.threadLock:
+            self.db.updateSiteHash(data)
+        self.queue.task_done()
 
-def main():
+"""
+check policies for all sites in the database
+"""
+def checkPolicies():
+  queue = Queue()
   threadLock = threading.Lock()
-  threads = []
+  maxThreads = 10
   db = dbCalls()
-  for site in db.getSitesHashes():
-    thread = check(threadLock, db, site['name'], site['name'], site['hash'])
+  #spawn daemon threads that wait for jobs in queue
+  for i in range(maxThreads):
+    thread = threadedCheck(threadLock, db, i, queue)
+    thread.setDaemon(True)
     thread.start()
-    threads.append(thread)
-    #make sure we don't go over max concurrent thread limit
-    while (threading.activeCount() > maxThreads):
-      pass
+  
+  #put sites to process on queue
+  for site in db.getSitesHashes():
+    queue.put(site)
   
   #wait for all threads to finish execution
-  while (threading.activeCount() > 1):
-    pass
-  
+  queue.join()
   #display all users who need to be notified
   for user in db.getUsersToNotify():
     pprint.pprint(user)
   
 if __name__ == '__main__':
-  main()
+  checkPolicies()
