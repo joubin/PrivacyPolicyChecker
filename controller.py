@@ -9,7 +9,7 @@ from checker import checkerFunction
 """
 compare company old (db) hash to a new one (internet)
 update sites if necessary
-this class designed to run as a single daemon thread
+this class designed to be ran as a single daemon thread
 """
 class threadedCheck(threading.Thread):
   """override constructor"""
@@ -23,15 +23,17 @@ class threadedCheck(threading.Thread):
   """override thread run function"""
   def run(self):
     while True:
+      #try to get a job from queue
       site = self.queue.get()
       if (site != None):
         newhash = checkerFunction(site['name'])
         if (site['hash'] != newhash):
-          data = {"hash": newhash, "companyName": self.companyName}
+          data = {"hash": newhash, "companyName": site['name']}
           #db object is shared by other threads.
           #put a lock on this object until its done executing
           with self.threadLock:
             self.db.updateSiteHash(data)
+        #notify queue that job is finished
         self.queue.task_done()
 
 """
@@ -40,7 +42,7 @@ check policies for all sites in the database
 def checkPolicies():
   queue = Queue()
   threadLock = threading.Lock()
-  maxThreads = 10
+  maxThreads = 15
   db = dbCalls()
   #spawn daemon threads that wait for jobs in queue
   for i in range(maxThreads):
