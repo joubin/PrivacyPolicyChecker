@@ -1,6 +1,18 @@
 from basesql import Basesql
 import pprint
 
+"""
+Database calls implementations
+geAllUsers()                - returns all users
+addUser(fname, lname, emai) - adds a user
+getUsersToNotify()          - returns all users whos registered sites have been
+                              resently updated (isnew flag set to 1).
+                              Flag is reset after retrieval
+getUserSites(userEmail)     - returns all sites registered for a single user
+getSitesHashes()            - returns name of the sites and their hashes
+setSiteToUser(companyName, email) - assign site to a single user                         
+"""
+
 class dbCalls(Basesql):
   """
   get all users
@@ -114,7 +126,34 @@ class dbCalls(Basesql):
       print "%s" % e
       return
   
-  
+  """
+  assigns a site to a single user 
+  """
+  def setSiteToUser(self, companyName, email):
+    if self._connection == None:
+      print "You must establish a connection first!"
+      return
+    cursor = self._connection.cursor()
+    result = None
+    commandText = ("""INSERT INTO usersxsites (userid, siteid)
+                        SELECT u.userid, s.siteid
+                          FROM users u, sites s
+                         WHERE u.email = '%s'
+                           AND s.name = '%s'"""%
+                           (email, companyName))
+    try:
+      cursor.execute(commandText)
+      if (cursor.rowcount == 1):
+        self._connection.commit()
+        cursor.close()
+        return
+      else:
+        self._connection.rollback()
+        cursor.close()
+        return "User email or company name supplied don't exist"
+    except Exception as e:
+      return "Error adding records %s" % e
+     
   """
   get site hash from db
   """
@@ -165,8 +204,8 @@ class dbCalls(Basesql):
   
 if __name__ == '__main__':
   dbInstance = dbCalls()
-  pprint.pprint(dbInstance.getUserSites('alex@test'))
   """
+  pprint.pprint(dbInstance.setSiteToUser('facebook','alex@test'))
   print("New userid: %s") % dbInstance.addUser('alex','c','alex@c')
   data = {"hash": 'blablabla', "companyName": 'amazon'}
   dbInstance.updateSiteHash(data)

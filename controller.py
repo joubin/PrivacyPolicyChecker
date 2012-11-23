@@ -11,7 +11,7 @@ compare company old (db) hash to a new one (internet)
 update sites if necessary
 this class designed to be ran as a single daemon thread
 """
-class threadedCheck(threading.Thread):
+class workerThreadChecker(threading.Thread):
   """override constructor"""
   def __init__(self, threadLock, db, threadID, queue):
     self.threadID     = threadID
@@ -46,7 +46,7 @@ def checkPolicies():
   db = dbCalls()
   #spawn daemon threads that wait for jobs in queue
   for i in range(maxThreads):
-    thread = threadedCheck(threadLock, db, i, queue)
+    thread = workerThreadChecker(threadLock, db, i, queue)
     thread.setDaemon(True)
     thread.start()
   
