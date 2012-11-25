@@ -3,7 +3,7 @@ import pprint
 
 """
 Database calls implementations
-geAllUsers()                - returns all users
+getAllUsers()               - returns all users
 addUser(fname, lname, emai) - adds a user
 getUsersToNotify()          - returns all users whos registered sites have been
                               resently updated (isnew flag set to 1).
@@ -11,6 +11,8 @@ getUsersToNotify()          - returns all users whos registered sites have been
 getUserSites(userEmail)     - returns all sites registered for a single user
 getSitesHashes()            - returns name of the sites and their hashes
 setSiteToUser(companyName, email) - assign site to a single user                         
+addSite()                   - add a site to the daatabase
+getAllSite()                - returns a list of all sites
 """
 
 class dbCalls(Basesql):
@@ -201,6 +203,56 @@ class dbCalls(Basesql):
       print "%s" % e
     return
 
+  """
+  add site
+  """
+  def addSite(self, sitename):
+    if self._connection == None:
+      print "You must establish a connection first!"
+      return
+    cursor = self._connection.cursor()
+    
+    commandText = ("""INSERT INTO sites (name)
+                           VALUES ("%s")"""%
+                          (sitename))
+    try:
+      cursor.execute(commandText)
+      #must commit updates/inserts/deletes
+      self._connection.commit()
+      commandText = ('''SELECT LAST_INSERT_ID()''')
+      cursor.execute(commandText)
+      result = cursor.fetchone()
+      cursor.close()
+      return result
+      
+    except Exception as e:
+      print "Error %s" % e
+      return
+
+  """
+  get all users
+  """
+  def getAllSites(self):
+    if self._connection == None:
+      print "You must establish a connection first!"
+      return
+    cursor = self._connection.cursor()
+    result = []
+    
+    commandText = ('''SELECT name
+                        FROM sites''')
+    try:  
+      cursor.execute(commandText)
+      columns = tuple( [d[0].decode('utf8') for d in cursor.description] )
+      for row in cursor:
+        result.append(dict(zip(columns, row)))
+      cursor.close()
+      return result
+      
+    except Exception as e:
+      print "Error %s" % e
+      return
+ 
   
 if __name__ == '__main__':
   dbInstance = dbCalls()

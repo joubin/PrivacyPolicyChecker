@@ -1,6 +1,6 @@
 #sample python-mysql stuff
 import mysql.connector as db
-from mysql.connector import errorcode
+#from mysql.connector import errorcode
 from ConfigParser import SafeConfigParser
 
 class Basesql(object):
