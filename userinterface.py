@@ -49,7 +49,14 @@ class UserInterface(object):
       db.setSiteToUser(sitename, email)
     elif userInput == '3':
      print "Updating Privacy Policy hashes..."
-     checkPolicies()
+     usersToNotify = checkPolicies()
+     if usersToNotify != None:
+       for user in usersToNotify:
+         #pprint.pprint(user)
+         print 'name: {0}, {1} email: {2} companies: {3}'.format(user['firstname'],
+                                                                  user['lastname'],
+                                                                  user['email'],
+                                                                  user['companies'])
     elif userInput == '9':
       exitFlag = 1
     else:

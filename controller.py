@@ -57,8 +57,8 @@ def checkPolicies():
   #wait for all threads to finish execution
   queue.join()
   #display all users who need to be notified
-  for user in db.getUsersToNotify():
-    pprint.pprint(user)
+  return db.getUsersToNotify()
   
 if __name__ == '__main__':
-  checkPolicies()
+  for user in checkPolicies():
+    pprint.pprint(user)
