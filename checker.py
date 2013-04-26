@@ -8,15 +8,16 @@ import datetime
 import os
 from readability.readability import Document
 
+"""
+This is the base scanner that will compare page. 
 
+This will work on html pages only. 
+
+Some providers will provide their pages in PHP and that will not work. 
+
+"""
 def checkerFunction(myInput):
 	today = datetime.date.today()
-	
-	
-
-
-
-
 	try:
 		google1 = 'http://www.google.com/search?hl=en&q='
 		google2 = '%20privacy%20policy&btnI=1'

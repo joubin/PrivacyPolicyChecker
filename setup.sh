@@ -21,6 +21,8 @@ mkdir temp
 echo "Made temp dir that will be deleted after after this script is done"
 cd temp
 git clone git://github.com/gfxmonk/python-readability.git
+#Alex --> put files you would have to make here
+#and make it here
 cd python-readability
 python setup.py install 
 easy_install BeautifulSoup
@@ -28,6 +30,8 @@ easy_install html2text
 easy_install stripogram
 easy_install beautifulsoup4
 easy_install requests
+
+#Alex --> Place your easy install items for the modules here
 
 rm -rf $pwd/temp
 
