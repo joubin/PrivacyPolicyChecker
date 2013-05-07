@@ -30,6 +30,7 @@ easy_install html2text
 easy_install stripogram
 easy_install beautifulsoup4
 easy_install requests
+# Needs install files. (short)
 
 #Alex --> Place your easy install items for the modules here
 
